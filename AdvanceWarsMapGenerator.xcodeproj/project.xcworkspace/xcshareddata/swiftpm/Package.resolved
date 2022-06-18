@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "numswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/wvabrinskas/NumSwift",
+      "state" : {
+        "branch" : "main",
+        "revision" : "7d2f9ab3730ee4e74cd8acd06f678b52045b3662"
+      }
+    }
+  ],
+  "version" : 2
+}
