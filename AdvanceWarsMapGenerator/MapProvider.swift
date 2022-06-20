@@ -66,7 +66,7 @@ public class MapProvider {
   
   private func mapNoiseToType(_ noise: Double, x: Int, y: Int, tiles: [[Tile]], row: [Tile]) -> Tile.LandType {
     let type = Tile.LandType.type(for: noise)
-    
+  
     let up = tiles[safe: y - 1, [Tile(type: .none)]][safe: x, Tile(type: .none)]
     let left = row[safe: x - 1, Tile(type: .none)]
 
@@ -83,26 +83,19 @@ public class MapProvider {
     }
 
     if let currentAdjencyMatrix = type.adjencencyRequirement {
-  
-      if left.type != .none, let east = currentAdjencyMatrix.east, east.contains(left.type) == false {
-        return currentAdjencyMatrix.backup
-      }
       
-      if up.type != .none, let north = currentAdjencyMatrix.north, north.contains(up.type) == false {
-        return currentAdjencyMatrix.backup
-      }
-      
+      var horizontal = currentAdjencyMatrix.east ?? []
+      var vertical = currentAdjencyMatrix.north ?? []
       if currentAdjencyMatrix.reversible {
-        if left.type != .none, let west = currentAdjencyMatrix.west, west.contains(left.type) == false {
-          return currentAdjencyMatrix.backup
-        }
-        
-        if up.type != .none, let south = currentAdjencyMatrix.south, south.contains(up.type) == false {
-          return currentAdjencyMatrix.backup
-        }
+        vertical = vertical.union(currentAdjencyMatrix.north ?? [])
+        horizontal = horizontal.union(currentAdjencyMatrix.west ?? [])
+      }
+      
+      if horizontal.contains(left.type) == false || vertical.contains(up.type) == false {
+        return currentAdjencyMatrix.backup
       }
     }
-    
+
     return type
   }
 }
