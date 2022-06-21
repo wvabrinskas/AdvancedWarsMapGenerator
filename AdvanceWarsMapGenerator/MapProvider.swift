@@ -48,8 +48,8 @@ public class MapProvider {
       for x in 0..<mapSize.width {
         let noise = noise.nextPerlin(x: Double(x), y: Double(y), z: zHeight)
         let type = mapNoiseToType(noise, x: x, y: y, tiles: tiles, row: tileRows)
-        let tile = Tile(orientation: .east,
-                        type: type,
+        let tile = Tile(orientation: type.1,
+                        type: type.0,
                         size: tileSize)
         
         tileRows.append(tile)
@@ -64,38 +64,59 @@ public class MapProvider {
     self.staticNoise = noise
   }
   
-  private func mapNoiseToType(_ noise: Double, x: Int, y: Int, tiles: [[Tile]], row: [Tile]) -> Tile.LandType {
+  private func mapNoiseToType(_ noise: Double, x: Int, y: Int, tiles: [[Tile]], row: [Tile]) -> (Tile.LandType, Tile.Orientation) {
     let type = Tile.LandType.type(for: noise)
   
     let up = tiles[safe: y - 1, [Tile(type: .none)]][safe: x, Tile(type: .none)]
     let left = row[safe: x - 1, Tile(type: .none)]
-
+    
+    if let currentAdjencyMatrix = type.adjencencyRequirement {
+      
+      var horizontal = currentAdjencyMatrix.east ?? []
+      var vertical = currentAdjencyMatrix.north ?? []
+      
+      if currentAdjencyMatrix.reversible {
+        vertical = vertical.union(currentAdjencyMatrix.south ?? [])
+        horizontal = horizontal.union(currentAdjencyMatrix.west ?? [])
+      }
+      
+      if horizontal.contains(left.type) == false || vertical.contains(up.type) == false {
+        return (currentAdjencyMatrix.backup, .east)
+      }
+    }
+    
     if let upAdjacencyMatrix = up.type.adjencencyRequirement {
       if upAdjacencyMatrix.south?.contains(type) == false {
-        return upAdjacencyMatrix.backup
+        return (upAdjacencyMatrix.backup, .east)
       }
     }
     
     if let leftAdjacencyMatrix = left.type.adjencencyRequirement {
       if leftAdjacencyMatrix.west?.contains(type) == false {
-        return leftAdjacencyMatrix.backup
+        return (leftAdjacencyMatrix.backup, .east)
       }
     }
-
-    if let currentAdjencyMatrix = type.adjencencyRequirement {
-      
-      var horizontal = currentAdjencyMatrix.east ?? []
-      var vertical = currentAdjencyMatrix.north ?? []
-      if currentAdjencyMatrix.reversible {
-        vertical = vertical.union(currentAdjencyMatrix.north ?? [])
-        horizontal = horizontal.union(currentAdjencyMatrix.west ?? [])
-      }
-      
-      if horizontal.contains(left.type) == false || vertical.contains(up.type) == false {
-        return currentAdjencyMatrix.backup
-      }
-    }
-
-    return type
+    
+    return (type, orientation(incomingTile: type, adjTile: left.type, from: .east))
   }
+  
+  
+  private func orientation(incomingTile: Tile.LandType, adjTile: Tile.LandType, from: Tile.Orientation) -> Tile.Orientation {
+    switch incomingTile {
+    case .bridge:
+      switch adjTile {
+      case .river:
+        if from == .east || from == .north {
+          return .north
+        } else {
+          return .east
+        }
+      default:
+        return .east
+      }
+    default:
+      return .east
+    }
+  }
+  
 }

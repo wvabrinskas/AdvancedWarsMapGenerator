@@ -96,42 +96,42 @@ public struct Tile: CustomDebugStringConvertible {
         return rawType
       }
     }
-    
+
     var adjencencyRequirement: AdjacencyMatrix? {
       switch self {
       case .port:
-        return AdjacencyMatrix(east: [.sea, .shoal, .plain],
-                               west: [.shoal, .plain],
-                               north: [.sea, .shoal, .plain],
-                               south: [.shoal, .plain],
-                               reversible: true,
+        return AdjacencyMatrix(east: [.sea],
+                               west: [.shoal, .plain, .building],
+                               north: [.sea],
+                               south: [.shoal, .plain, .building],
+                               reversible: false,
                                backup: .building)
-      case .river:
-        return AdjacencyMatrix(east: [.plain, .river, .woods, .mountain, .building, .hq, .base, .port, .airport ],
-                               west: [.plain, .river, .woods, .mountain, .building, .hq, .base, .port, .airport,],
+      case .river: //current limitation is that rivers can only be placed East <> West facing. Rotation isnt in effect yet
+        return AdjacencyMatrix(east: [.plain, .river, .woods, .mountain, .building, .hq, .base, .port, .airport, .bridge],
+                               west: [.plain, .river, .woods, .mountain, .building, .hq, .base, .port, .airport, .bridge],
                                north: [.woods, .building, .hq, .base, .port, .airport, .mountain, .plain],
                                south: [.woods, .building, .hq, .base, .port, .airport, .mountain, .plain],
                                reversible: true,
                                backup: .plain)
       case .bridge:
-        return AdjacencyMatrix(east: [.plain, .woods, .building, .hq, .base, .port, .airport, .mountain],
-                               west: [.plain, .woods, .building, .hq, .base, .port, .airport,.mountain],
-                               north: [.river],
-                               south: [.river],
-                               reversible: true,
+        return AdjacencyMatrix(east: [.river],
+                               west: [.river],
+                               north: [.plain, .woods, .building, .hq, .base, .port, .airport, .mountain],
+                               south: [.plain, .woods, .building, .hq, .base, .port, .airport, .mountain],
+                               reversible: false,
                                backup: .plain)
-      case .shoal:
-        return AdjacencyMatrix(east: [.sea, .shoal, .plain],
-                               west: [.shoal, .plain],
-                               north: [.sea, .shoal, .plain],
-                               south: [.shoal, .plain],
-                               reversible: true,
+      case .shoal: //current limitation is that shoals can only be placed North <> South facing. Rotation isnt in effect yet
+        return AdjacencyMatrix(east: [.shoal, .plain],
+                               west: [.shoal],
+                               north: [.shoal, .plain],
+                               south: [.sea],
+                               reversible: false,
                                backup: .sea)
       case .building:
-        return AdjacencyMatrix(east: [.plain, .woods, .building, .hq, .base, .port, .airport, .mountain, .bridge, .shoal],
-                               west: [.plain, .woods, .building,.hq, .base, .port, .airport, .mountain, .bridge, .shoal],
-                               north: [.plain, .woods, .building, .hq, .base, .port, .airport, .mountain, .bridge, .shoal],
-                               south: [.plain, .woods, .building, .hq, .base, .port, .airport, .mountain, .bridge, .shoal],
+        return AdjacencyMatrix(east: [.plain, .woods, .building, .hq, .base, .port, .airport, .mountain, .shoal],
+                               west: [.plain, .woods, .building,.hq, .base, .port, .airport, .mountain, .shoal],
+                               north: [.plain, .woods, .building, .hq, .base, .port, .airport, .mountain, .shoal],
+                               south: [.plain, .woods, .building, .hq, .base, .port, .airport, .mountain, .shoal],
                                reversible: true,
                                backup: .plain)
       default:
@@ -142,6 +142,15 @@ public struct Tile: CustomDebugStringConvertible {
 
   public enum Orientation {
     case north, south, east, west
+    
+    var rotation: Double {
+      switch self {
+      case .east, .west:
+        return 0
+      case .north, .south:
+        return 90
+      }
+    }
   }
   
   var orientation: Orientation = .west

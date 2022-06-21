@@ -23,10 +23,7 @@ struct ContentView: View {
         ForEach(0..<map.size.height) { y in
           HStack(spacing: 0) {
             ForEach(0..<map.size.width) { x in
-              Image(map.tiles[x][y].type.rawValue)
-                .resizable()
-                .frame(width: Double(map.tileSize.width),
-                       height: Double(map.tileSize.height))
+              getImage(x: x, y: y)
             }
           }
         }
@@ -76,6 +73,16 @@ struct ContentView: View {
   
   func generate(static: Bool = false) {
     mapProvider.generate(static: `static`)
+  }
+  
+  func getImage(x: Int, y: Int) -> some View {
+    let tile = map.tiles[y][x]
+    
+    return Image(tile.type.rawValue)
+      .resizable()
+      .frame(width: Double(map.tileSize.width),
+             height: Double(map.tileSize.height))
+      .rotationEffect(Angle(degrees: tile.orientation.rotation))
   }
 }
 
