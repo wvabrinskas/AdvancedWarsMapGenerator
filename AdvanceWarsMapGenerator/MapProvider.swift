@@ -106,10 +106,21 @@ public class MapProvider {
     case .bridge:
       switch adjTile {
       case .river:
-        if from == .east || from == .north {
+        if from == .east || from == .west {
           return .north
         } else {
           return .east
+        }
+      default:
+        return .east
+      }
+    case .shoal:
+      switch adjTile {
+      case .plain:
+        if from == .east || from == .west {
+          return .north
+        } else {
+          return .west
         }
       default:
         return .east

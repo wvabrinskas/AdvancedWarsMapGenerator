@@ -71,9 +71,9 @@ public struct Tile: CustomDebugStringConvertible {
     
     static func getBuilding() -> LandType {
       let distribution: [Int: LandType] = [8 : .building,
-                                           4 : .airport,
+                                           5 : .airport,
                                            6 : .base,
-                                           3 : .port,
+                                           4 : .port,
                                            0 : .hq]
       
       var distributionArray: [LandType] = []
@@ -145,10 +145,14 @@ public struct Tile: CustomDebugStringConvertible {
     
     var rotation: Double {
       switch self {
-      case .east, .west:
+      case .east:
         return 0
-      case .north, .south:
+      case .west:
+        return -90
+      case .south:
         return 90
+      case .north:
+        return -90
       }
     }
   }
