@@ -27,6 +27,7 @@ struct ContentView: View {
             }
           }
         }
+        .background(Color.white)
       }
       VStack {
         Spacer()
